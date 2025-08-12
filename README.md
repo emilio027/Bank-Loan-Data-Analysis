@@ -79,7 +79,7 @@ The Advanced Credit Risk Analytics & Portfolio Optimization Engine represents a 
                                                                              
                                                                               - ### Industry Recognition
                                                                               - - **Best Risk Management Innovation** - Financial Technology Awards 2024
-                                                                                - - **Academic Excellence in Applied Finance** - MIT Sloan School
+                                                                                - - **Academic Excellence in Applied Finance** - Top-Tier Business School Sloan School
                                                                                   - - **Outstanding Research Contribution** - Harvard Business School
                                                                                    
                                                                                     - ## 🚀 Implementation & Deployment
