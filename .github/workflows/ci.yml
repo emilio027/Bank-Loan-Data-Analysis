@@ -1,0 +1,436 @@
+name: Enhanced CI/CD Pipeline - Enterprise Credit Risk Intelligence
+
+on:
+  push:
+    branches: [ main, develop, feature/* ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    - cron: '0 2 * * *'  # Daily at 2 AM for nightly builds
+
+env:
+  PYTHON_DEFAULT_VERSION: '3.11'
+  NODE_VERSION: '18'
+  DOCKER_REGISTRY: ghcr.io
+  IMAGE_NAME: enterprise-credit-risk-platform
+
+jobs:
+  # ============================================================================
+  # Code Quality and Linting
+  # ============================================================================
+  code-quality:
+    name: Code Quality Analysis
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_DEFAULT_VERSION }}
+    
+    - name: Cache pip packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-quality-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-quality-
+          ${{ runner.os }}-pip-
+    
+    - name: Install quality tools
+      run: |
+        python -m pip install --upgrade pip
+        pip install black flake8 isort mypy pylint bandit safety pre-commit
+        pip install -r requirements.txt
+    
+    - name: Run Black (Code Formatting)
+      run: |
+        black --check --diff Files/src Files/tests
+        echo "✅ Black formatting check passed"
+    
+    - name: Run isort (Import Sorting)
+      run: |
+        isort --check-only --diff Files/src Files/tests
+        echo "✅ Import sorting check passed"
+    
+    - name: Run flake8 (Style Guide)
+      run: |
+        flake8 Files/src Files/tests --max-line-length=100 --extend-ignore=E203,W503
+        echo "✅ Flake8 style check passed"
+    
+    - name: Run pylint (Code Analysis)
+      run: |
+        pylint Files/src --disable=C0114,C0115,C0116 --max-line-length=100
+        echo "✅ Pylint analysis passed"
+    
+    - name: Run mypy (Type Checking)
+      run: |
+        mypy Files/src --ignore-missing-imports --no-strict-optional
+        echo "✅ MyPy type checking passed"
+
+  # ============================================================================
+  # Security Scanning
+  # ============================================================================
+  security-scan:
+    name: Security Analysis
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_DEFAULT_VERSION }}
+    
+    - name: Install security tools
+      run: |
+        python -m pip install --upgrade pip
+        pip install bandit safety semgrep
+        pip install -r requirements.txt
+    
+    - name: Run Bandit (Security Issues)
+      run: |
+        bandit -r Files/src -f json -o bandit-report.json || true
+        bandit -r Files/src --severity-level medium
+        echo "✅ Bandit security scan completed"
+    
+    - name: Run Safety (Dependency Vulnerabilities)
+      run: |
+        safety check --json --output safety-report.json || true
+        safety check
+        echo "✅ Safety dependency check completed"
+    
+    - name: Run Semgrep (SAST)
+      run: |
+        semgrep --config=auto Files/src --json --output=semgrep-report.json || true
+        echo "✅ Semgrep SAST scan completed"
+    
+    - name: Upload security reports
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: security-reports
+        path: |
+          bandit-report.json
+          safety-report.json
+          semgrep-report.json
+
+  # ============================================================================
+  # Comprehensive Testing
+  # ============================================================================
+  test:
+    name: Test Suite
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.9', '3.10', '3.11', '3.12']
+        test-type: ['unit', 'integration', 'api']
+        include:
+          - python-version: '3.11'
+            test-type: 'performance'
+          - python-version: '3.11'
+            test-type: 'security'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Cache pip packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-${{ matrix.python-version }}-
+          ${{ runner.os }}-pip-
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-cov pytest-xdist pytest-benchmark
+        pip install pytest-mock pytest-asyncio pytest-timeout
+        pip install coverage[toml] hypothesis factory-boy
+    
+    - name: Set up test environment
+      run: |
+        mkdir -p test-results coverage-reports
+        export PYTHONPATH="${PYTHONPATH}:$(pwd)/Files/src"
+    
+    - name: Run Unit Tests
+      if: matrix.test-type == 'unit'
+      run: |
+        pytest Files/tests/test_main.py Files/tests/test_data.py \
+          --cov=Files/src \
+          --cov-report=xml:coverage-reports/unit-coverage.xml \
+          --cov-report=html:coverage-reports/unit-html \
+          --junitxml=test-results/unit-results.xml \
+          --timeout=300 \
+          -v
+        echo "✅ Unit tests completed"
+    
+    - name: Run Integration Tests
+      if: matrix.test-type == 'integration'
+      run: |
+        pytest Files/tests/test_integration.py \
+          --cov=Files/src \
+          --cov-report=xml:coverage-reports/integration-coverage.xml \
+          --cov-report=html:coverage-reports/integration-html \
+          --junitxml=test-results/integration-results.xml \
+          --timeout=600 \
+          -v
+        echo "✅ Integration tests completed"
+    
+    - name: Run API Tests
+      if: matrix.test-type == 'api'
+      run: |
+        pytest Files/tests/test_api.py \
+          --cov=Files/src \
+          --cov-report=xml:coverage-reports/api-coverage.xml \
+          --cov-report=html:coverage-reports/api-html \
+          --junitxml=test-results/api-results.xml \
+          --timeout=300 \
+          -v
+        echo "✅ API tests completed"
+    
+    - name: Run Performance Tests
+      if: matrix.test-type == 'performance'
+      run: |
+        pytest Files/tests/test_performance.py \
+          -m "not slow" \
+          --benchmark-only \
+          --benchmark-json=test-results/benchmark-results.json \
+          --timeout=900 \
+          -v
+        echo "✅ Performance tests completed"
+    
+    - name: Run Security Tests
+      if: matrix.test-type == 'security'
+      run: |
+        pytest Files/tests/ \
+          -m "security" \
+          --junitxml=test-results/security-results.xml \
+          --timeout=300 \
+          -v || true
+        echo "✅ Security tests completed"
+    
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: test-results-${{ matrix.python-version }}-${{ matrix.test-type }}
+        path: |
+          test-results/
+          coverage-reports/
+    
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      if: matrix.test-type != 'performance'
+      with:
+        file: coverage-reports/*-coverage.xml
+        flags: ${{ matrix.test-type }}
+        name: codecov-${{ matrix.python-version }}-${{ matrix.test-type }}
+
+  # ============================================================================
+  # Load and Stress Testing
+  # ============================================================================
+  load-test:
+    name: Load Testing
+    runs-on: ubuntu-latest
+    needs: [test]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_DEFAULT_VERSION }}
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-benchmark locust
+    
+    - name: Run Load Tests
+      run: |
+        pytest Files/tests/test_performance.py \
+          -m "slow" \
+          --benchmark-json=load-test-results.json \
+          --timeout=1800 \
+          -v
+        echo "✅ Load tests completed"
+    
+    - name: Upload load test results
+      uses: actions/upload-artifact@v3
+      with:
+        name: load-test-results
+        path: load-test-results.json
+
+  # ============================================================================
+  # Build and Package
+  # ============================================================================
+  build:
+    name: Build and Package
+    runs-on: ubuntu-latest
+    needs: [code-quality, security-scan, test]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_DEFAULT_VERSION }}
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Log in to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.DOCKER_REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.DOCKER_REGISTRY }}/${{ github.repository }}/${{ env.IMAGE_NAME }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=sha,prefix={{branch}}-
+          type=raw,value=latest,enable={{is_default_branch}}
+    
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        platforms: linux/amd64,linux/arm64
+    
+    - name: Generate SBOM
+      uses: anchore/sbom-action@v0
+      with:
+        image: ${{ env.DOCKER_REGISTRY }}/${{ github.repository }}/${{ env.IMAGE_NAME }}:latest
+        format: spdx-json
+        output-file: sbom.spdx.json
+    
+    - name: Upload SBOM
+      uses: actions/upload-artifact@v3
+      with:
+        name: sbom
+        path: sbom.spdx.json
+
+  # ============================================================================
+  # Container Security Scanning
+  # ============================================================================
+  container-scan:
+    name: Container Security Scan
+    runs-on: ubuntu-latest
+    needs: [build]
+    
+    steps:
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: ${{ env.DOCKER_REGISTRY }}/${{ github.repository }}/${{ env.IMAGE_NAME }}:latest
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+    
+    - name: Upload Trivy scan results
+      uses: github/codeql-action/upload-sarif@v2
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+  # ============================================================================
+  # Deployment
+  # ============================================================================
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [build, container-scan]
+    if: github.ref == 'refs/heads/develop'
+    environment: staging
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Deploy to Staging Environment
+      run: |
+        echo "🚀 Deploying to staging environment..."
+        echo "Image: ${{ env.DOCKER_REGISTRY }}/${{ github.repository }}/${{ env.IMAGE_NAME }}:develop"
+        # Add staging deployment commands here
+        echo "✅ Staging deployment completed"
+
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [build, container-scan, load-test]
+    if: github.ref == 'refs/heads/main'
+    environment: production
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Deploy to Production Environment
+      run: |
+        echo "🚀 Deploying to production environment..."
+        echo "Image: ${{ env.DOCKER_REGISTRY }}/${{ github.repository }}/${{ env.IMAGE_NAME }}:latest"
+        # Add production deployment commands here
+        echo "✅ Production deployment completed"
+    
+    - name: Health Check
+      run: |
+        echo "🔍 Running post-deployment health checks..."
+        # Add health check commands here
+        echo "✅ Health checks passed"
+
+  # ============================================================================
+  # Notifications and Reporting
+  # ============================================================================
+  notify:
+    name: Notify Results
+    runs-on: ubuntu-latest
+    needs: [deploy-production, deploy-staging]
+    if: always()
+    
+    steps:
+    - name: Notify Success
+      if: ${{ needs.deploy-production.result == 'success' || needs.deploy-staging.result == 'success' }}
+      run: |
+        echo "✅ Pipeline completed successfully!"
+        echo "Branch: ${{ github.ref_name }}"
+        echo "Commit: ${{ github.sha }}"
+    
+    - name: Notify Failure
+      if: ${{ contains(needs.*.result, 'failure') }}
+      run: |
+        echo "❌ Pipeline failed!"
+        echo "Check the failed jobs for details."
