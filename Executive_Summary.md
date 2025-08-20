@@ -132,7 +132,7 @@
 
 ### 📧 **Project Lead Contact**
 **Emilio Cardenas**  
-*MIT PhD AI Automation | Harvard MBA*  
+*Principal Data Scientist & Risk Analytics Expert*  
 📧 emilio.cardenas@enterprise-ai.com  
 📱 +1 (555) 123-4567  
 🔗 [LinkedIn](https://linkedin.com/in/emiliocardenas) | [GitHub](https://github.com/emiliocardenas)
