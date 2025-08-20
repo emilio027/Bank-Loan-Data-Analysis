@@ -73,38 +73,38 @@ check-deps: ## Check for dependency vulnerabilities
 
 test: ## Run all tests
 	@echo "$(GREEN)Running all tests...$(RESET)"
-	$(PYTEST) Technical/Tests/ -v --cov=Technical/Source_Code --cov-report=term-missing
+	$(PYTEST) Files/tests/ -v --cov=Files/src --cov-report=term-missing
 	@echo "$(GREEN)✅ All tests completed$(RESET)"
 
 test-unit: ## Run unit tests only
 	@echo "$(GREEN)Running unit tests...$(RESET)"
-	$(PYTEST) Technical/Tests/test_main.py Technical/Tests/test_data.py -v --cov=Technical/Source_Code
+	$(PYTEST) Files/tests/test_main.py Files/tests/test_data.py -v --cov=Files/src
 	@echo "$(GREEN)✅ Unit tests completed$(RESET)"
 
 test-integration: ## Run integration tests only
 	@echo "$(GREEN)Running integration tests...$(RESET)"
-	$(PYTEST) Technical/Tests/test_integration.py -v --cov=Technical/Source_Code
+	$(PYTEST) Files/tests/test_integration.py -v --cov=Files/src
 	@echo "$(GREEN)✅ Integration tests completed$(RESET)"
 
 test-api: ## Run API tests only
 	@echo "$(GREEN)Running API tests...$(RESET)"
-	$(PYTEST) Technical/Tests/test_api.py -v --cov=Technical/Source_Code
+	$(PYTEST) Files/tests/test_api.py -v --cov=Files/src
 	@echo "$(GREEN)✅ API tests completed$(RESET)"
 
 test-performance: ## Run performance tests (excluding slow tests)
 	@echo "$(GREEN)Running performance tests...$(RESET)"
-	$(PYTEST) Technical/Tests/test_performance.py -m "not slow" -v --benchmark-only
+	$(PYTEST) Files/tests/test_performance.py -m "not slow" -v --benchmark-only
 	@echo "$(GREEN)✅ Performance tests completed$(RESET)"
 
 test-security: ## Run security-focused tests
 	@echo "$(GREEN)Running security tests...$(RESET)"
-	$(PYTEST) Technical/Tests/ -m "security" -v
+	$(PYTEST) Files/tests/ -m "security" -v
 	@echo "$(GREEN)✅ Security tests completed$(RESET)"
 
 test-all: ## Run comprehensive test suite
 	@echo "$(GREEN)Running comprehensive test suite...$(RESET)"
-	$(PYTEST) Technical/Tests/ -v \
-		--cov=Technical/Source_Code \
+	$(PYTEST) Files/tests/ -v \
+		--cov=Files/src \
 		--cov-report=term-missing \
 		--cov-report=html \
 		--cov-report=xml \
@@ -114,7 +114,7 @@ test-all: ## Run comprehensive test suite
 
 benchmark: ## Run performance benchmarks
 	@echo "$(GREEN)Running performance benchmarks...$(RESET)"
-	$(PYTEST) Technical/Tests/test_performance.py \
+	$(PYTEST) Files/tests/test_performance.py \
 		--benchmark-only \
 		--benchmark-json=benchmark-results.json \
 		--benchmark-sort=mean
@@ -122,7 +122,7 @@ benchmark: ## Run performance benchmarks
 
 stress-test: ## Run stress tests (may take a long time)
 	@echo "$(YELLOW)Running stress tests (this may take a while)...$(RESET)"
-	$(PYTEST) Technical/Tests/test_performance.py -m "slow" -v \
+	$(PYTEST) Files/tests/test_performance.py -m "slow" -v \
 		--timeout=1800 \
 		--benchmark-json=stress-test-results.json
 	@echo "$(GREEN)✅ Stress tests completed$(RESET)"
@@ -133,30 +133,30 @@ stress-test: ## Run stress tests (may take a long time)
 
 lint: ## Run all linting tools
 	@echo "$(GREEN)Running linting tools...$(RESET)"
-	flake8 Technical/Source_Code Technical/Tests --max-line-length=100 --extend-ignore=E203,W503
-	pylint Technical/Source_Code --max-line-length=100
+	flake8 Files/src Files/tests --max-line-length=100 --extend-ignore=E203,W503
+	pylint Files/src --max-line-length=100
 	@echo "$(GREEN)✅ Linting completed$(RESET)"
 
 format: ## Format code with black and isort
 	@echo "$(GREEN)Formatting code...$(RESET)"
-	black Technical/Source_Code Technical/Tests
-	isort Technical/Source_Code Technical/Tests
+	black Files/src Files/tests
+	isort Files/src Files/tests
 	@echo "$(GREEN)✅ Code formatting completed$(RESET)"
 
 format-check: ## Check code formatting without making changes
 	@echo "$(GREEN)Checking code formatting...$(RESET)"
-	black --check --diff Technical/Source_Code Technical/Tests
-	isort --check-only --diff Technical/Source_Code Technical/Tests
+	black --check --diff Files/src Files/tests
+	isort --check-only --diff Files/src Files/tests
 	@echo "$(GREEN)✅ Code formatting check completed$(RESET)"
 
 type-check: ## Run type checking with mypy
 	@echo "$(GREEN)Running type checks...$(RESET)"
-	mypy Technical/Source_Code --ignore-missing-imports --no-strict-optional
+	mypy Files/src --ignore-missing-imports --no-strict-optional
 	@echo "$(GREEN)✅ Type checking completed$(RESET)"
 
 security-scan: ## Run security scans
 	@echo "$(GREEN)Running security scans...$(RESET)"
-	bandit -r Technical/Source_Code
+	bandit -r Files/src
 	safety check
 	@echo "$(GREEN)✅ Security scans completed$(RESET)"
 
@@ -166,7 +166,7 @@ security-scan: ## Run security scans
 
 coverage: ## Generate test coverage report
 	@echo "$(GREEN)Generating coverage report...$(RESET)"
-	$(PYTEST) Technical/Tests/ --cov=Technical/Source_Code --cov-report=html --cov-report=xml
+	$(PYTEST) Files/tests/ --cov=Files/src --cov-report=html --cov-report=xml
 	@echo "$(GREEN)✅ Coverage report generated$(RESET)"
 
 coverage-report: ## Open coverage report in browser
@@ -185,11 +185,11 @@ coverage-report: ## Open coverage report in browser
 
 serve: ## Start development server
 	@echo "$(GREEN)Starting development server on port $(PORT)...$(RESET)"
-	$(PYTHON) Technical/Source_Code/main.py
+	$(PYTHON) Files/src/main.py
 
 serve-debug: ## Start development server in debug mode
 	@echo "$(GREEN)Starting development server in debug mode...$(RESET)"
-	DEBUG=true $(PYTHON) Technical/Source_Code/main.py
+	DEBUG=true $(PYTHON) Files/src/main.py
 
 # ============================================================================
 # Docker
@@ -229,7 +229,7 @@ docker-shell: ## Access Docker container shell
 
 docs: ## Build documentation
 	@echo "$(GREEN)Building documentation...$(RESET)"
-	sphinx-build -W -b html Technical/Documentation docs/_build
+	sphinx-build -W -b html Files/docs docs/_build
 	@echo "$(GREEN)✅ Documentation built$(RESET)"
 
 serve-docs: ## Serve documentation locally
@@ -335,7 +335,7 @@ install-package: ## Install package in development mode
 
 version: ## Show version information
 	@echo "$(BOLD)Enterprise Credit Risk Intelligence Platform$(RESET)"
-	@echo "Version: $(shell python -c "import sys; sys.path.insert(0, 'Technical/Source_Code'); from main import __version__; print(__version__)" 2>/dev/null || echo "Unknown")"
+	@echo "Version: $(shell python -c "import sys; sys.path.insert(0, 'Files/src'); from main import __version__; print(__version__)" 2>/dev/null || echo "Unknown")"
 	@echo "Python: $(shell python --version)"
 	@echo "Platform: $(shell python -c "import platform; print(platform.platform())")"
 
@@ -352,8 +352,8 @@ ci-install: ## Install dependencies for CI
 
 ci-test: ## Run tests for CI environment
 	@echo "$(GREEN)Running CI test suite...$(RESET)"
-	$(PYTEST) Technical/Tests/ \
-		--cov=Technical/Source_Code \
+	$(PYTEST) Files/tests/ \
+		--cov=Files/src \
 		--cov-report=xml \
 		--junitxml=test-results.xml \
 		--timeout=300 \
@@ -362,10 +362,10 @@ ci-test: ## Run tests for CI environment
 
 ci-quality: ## Run quality checks for CI
 	@echo "$(GREEN)Running CI quality checks...$(RESET)"
-	black --check Technical/Source_Code Technical/Tests
-	flake8 Technical/Source_Code Technical/Tests --max-line-length=100
-	mypy Technical/Source_Code --ignore-missing-imports
-	bandit -r Technical/Source_Code
+	black --check Files/src Files/tests
+	flake8 Files/src Files/tests --max-line-length=100
+	mypy Files/src --ignore-missing-imports
+	bandit -r Files/src
 	safety check
 	@echo "$(GREEN)✅ CI quality checks completed$(RESET)"
 
