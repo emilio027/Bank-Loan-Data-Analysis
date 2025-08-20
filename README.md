@@ -1,4 +1,4 @@
-# 🏢 Enterprise Credit Risk Intelligence Platform
+# ◈ Enterprise Credit Risk Intelligence Platform
 
 <div align="center">
   <img src="https://img.shields.io/badge/AI%20Powered-Credit%20Risk%20Analytics-blue?style=for-the-badge&logo=brain&logoColor=white" alt="AI Powered">
@@ -8,23 +8,23 @@
 </div>
 
 <div align="center">
-  <h3>🚀 Transforming Financial Risk Management Through Advanced AI/ML</h3>
+  <h3>◆ Transforming Financial Risk Management Through Advanced AI/ML</h3>
   <p><em>Enterprise-grade credit risk analytics platform delivering measurable business impact</em></p>
 </div>
 
 ---
 
-## 🎯 Executive Summary
+## ◉ Executive Summary
 
-**🏆 Business Impact**: Revolutionary credit risk assessment platform delivering **94.3% prediction accuracy**, **$12.8M annual revenue protection**, and **847% ROI** through cutting-edge AI/ML risk analytics.
+**◇ Business Impact**: Revolutionary credit risk assessment platform delivering **94.3% prediction accuracy**, **$12.8M annual revenue protection**, and **847% ROI** through cutting-edge AI/ML risk analytics.
 
 <div align="center">
   <table>
     <tr>
-      <td align="center"><strong>📈 Revenue Protection</strong><br/>$12.8M annually</td>
-      <td align="center"><strong>⚡ Processing Speed</strong><br/>2.3 seconds</td>
-      <td align="center"><strong>🎯 Prediction Accuracy</strong><br/>94.3%</td>
-      <td align="center"><strong>💰 Cost Savings</strong><br/>$2.4M annually</td>
+      <td align="center"><strong>▬ Revenue Protection</strong><br/>$12.8M annually</td>
+      <td align="center"><strong>◈ Processing Speed</strong><br/>2.3 seconds</td>
+      <td align="center"><strong>◉ Prediction Accuracy</strong><br/>94.3%</td>
+      <td align="center"><strong>● Cost Savings</strong><br/>$2.4M annually</td>
     </tr>
   </table>
 </div>
