@@ -1,0 +1,271 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "enterprise-credit-risk-intelligence-platform"
+version = "2.0.0"
+description = "Advanced machine learning platform for credit risk assessment and portfolio optimization"
+readme = "README.md"
+license = {file = "LICENSE"}
+authors = [
+    {name = "Emilio Cardenas", email = "emilio@enterprise-intelligence.com"},
+]
+maintainers = [
+    {name = "Emilio Cardenas", email = "emilio@enterprise-intelligence.com"},
+]
+keywords = [
+    "credit-risk", "machine-learning", "fintech", "risk-assessment", 
+    "portfolio-optimization", "financial-intelligence", "enterprise-analytics"
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Financial and Insurance Industry",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Office/Business :: Financial",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+requires-python = ">=3.9"
+dependencies = [
+    "flask>=2.3.0",
+    "flask-cors>=4.0.0",
+    "numpy>=1.24.0",
+    "pandas>=2.0.0",
+    "scikit-learn>=1.3.0",
+    "xgboost>=1.7.0",
+    "lightgbm>=4.0.0",
+    "tensorflow>=2.13.0",
+    "sqlalchemy>=2.0.0",
+    "psycopg2-binary>=2.9.0",
+    "redis>=4.5.0",
+    "python-dotenv>=1.0.0",
+    "pydantic>=2.0.0",
+    "requests>=2.31.0",
+    "celery>=5.3.0",
+    "plotly>=5.15.0",
+    "dash>=2.12.0",
+    "shap>=0.42.0",
+    "joblib>=1.3.0",
+    "boto3>=1.26.0",
+    "azure-storage-blob>=12.16.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "pytest-mock>=3.11.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-xdist>=3.3.0",
+    "pytest-benchmark>=4.0.0",
+    "pytest-timeout>=2.1.0",
+    "black>=23.7.0",
+    "flake8>=6.0.0",
+    "isort>=5.12.0",
+    "mypy>=1.5.0",
+    "pylint>=2.17.0",
+    "pre-commit>=3.3.0",
+    "bandit>=1.7.0",
+    "safety>=2.3.0",
+    "semgrep>=1.32.0",
+]
+test = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "pytest-mock>=3.11.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-xdist>=3.3.0",
+    "pytest-benchmark>=4.0.0",
+    "pytest-timeout>=2.1.0",
+    "hypothesis>=6.82.0",
+    "factory-boy>=3.3.0",
+    "coverage[toml]>=7.2.0",
+]
+docs = [
+    "sphinx>=7.1.0",
+    "sphinx-rtd-theme>=1.3.0",
+    "myst-parser>=2.0.0",
+    "sphinx-autodoc-typehints>=1.24.0",
+]
+powerbi = [
+    "msal>=1.23.0",
+    "azure-identity>=1.13.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/emiliocardenas/enterprise-credit-risk-intelligence-platform"
+Documentation = "https://enterprise-credit-risk-intelligence-platform.readthedocs.io/"
+Repository = "https://github.com/emiliocardenas/enterprise-credit-risk-intelligence-platform.git"
+Issues = "https://github.com/emiliocardenas/enterprise-credit-risk-intelligence-platform/issues"
+Changelog = "https://github.com/emiliocardenas/enterprise-credit-risk-intelligence-platform/blob/main/CHANGELOG.md"
+
+[project.scripts]
+credit-risk-server = "Files.src.main:main"
+credit-risk-train = "Files.src.ml_models:train_models"
+credit-risk-predict = "Files.src.advanced_credit_risk_engine:predict_batch"
+
+# ============================================================================
+# Tool Configuration
+# ============================================================================
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["Files*"]
+exclude = ["Files.tests*"]
+
+[tool.black]
+line-length = 100
+target-version = ['py39', 'py310', 'py311', 'py312']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+  | migrations
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 100
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
+known_first_party = ["Files"]
+known_third_party = [
+    "flask", "numpy", "pandas", "sklearn", "xgboost", "lightgbm", 
+    "tensorflow", "sqlalchemy", "redis", "celery", "plotly", "dash"
+]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+check_untyped_defs = true
+disallow_untyped_decorators = false
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+show_error_codes = true
+
+[[tool.mypy.overrides]]
+module = [
+    "xgboost.*",
+    "lightgbm.*", 
+    "tensorflow.*",
+    "plotly.*",
+    "dash.*",
+    "shap.*",
+    "celery.*",
+    "redis.*",
+]
+ignore_missing_imports = true
+
+[tool.pylint.messages_control]
+disable = [
+    "C0114",  # missing-module-docstring
+    "C0115",  # missing-class-docstring
+    "C0116",  # missing-function-docstring
+    "R0903",  # too-few-public-methods
+    "R0913",  # too-many-arguments
+    "W0613",  # unused-argument
+    "W0622",  # redefined-builtin
+]
+
+[tool.pylint.format]
+max-line-length = 100
+
+[tool.pylint.design]
+max-args = 10
+max-locals = 20
+max-returns = 8
+max-branches = 15
+max-statements = 60
+max-parents = 10
+max-attributes = 12
+min-public-methods = 1
+max-public-methods = 25
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+testpaths = ["Files/tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "--strict-markers",
+    "--strict-config", 
+    "--cov=Files/src",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+    "--cov-report=xml",
+    "--cov-fail-under=80",
+]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "performance: marks tests as performance tests", 
+    "security: marks tests as security tests",
+    "api: marks tests as API tests",
+    "unit: marks tests as unit tests",
+    "credit_risk: marks tests specific to credit risk functionality",
+    "model_validation: marks tests for ML model validation",
+]
+filterwarnings = [
+    "error",
+    "ignore::UserWarning",
+    "ignore::DeprecationWarning",
+]
+
+[tool.coverage.run]
+source = ["Files/src"]
+omit = [
+    "*/tests/*",
+    "*/test_*",
+    "*/__pycache__/*",
+    "*/venv/*",
+    "*/env/*",
+    "setup.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
+
+[tool.bandit]
+exclude_dirs = ["Files/tests"]
+skips = ["B101", "B601"]
+
+[tool.bandit.assert_used]
+skips = ["*_test.py", "test_*.py"]
