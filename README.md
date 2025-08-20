@@ -54,6 +54,13 @@
 
 ## 🎬 **Live Platform Demonstrations**
 
+> **🚀 ONE-CLICK INTERACTIVE DEMO:**  
+> **[► LAUNCH LIVE DEMO](https://emilio027.github.io/Enterprise-Credit-Risk-Intelligence-Platform/interactive_demo.html)** ← *Click to run immediately*
+> 
+> ✅ **Works on all devices** - Mobile, tablet, desktop  
+> ✅ **Full features preserved** - All visualizations, filters, UI options  
+> ✅ **No downloads required** - Runs instantly in your browser
+
 <div align="center">
   <table>
     <tr>
@@ -247,7 +254,7 @@ docker-compose up -d
 ### 🚀 **Quick Access**
 | Resource | Description | Link |
 |----------|-------------|------|
-| 🎬 **Live Demo** | Interactive platform demonstration | [Demo](interactive_demo.html) |
+| 🎬 **Live Demo** | Interactive platform demonstration | [► LAUNCH DEMO](https://emilio027.github.io/Enterprise-Credit-Risk-Intelligence-Platform/interactive_demo.html) |
 | 📋 **Business Case** | ROI analysis and value proposition | [ROI Analysis](Business_Impact/ROI_Analysis.md) |
 | 🚀 **Quick Start** | Get running in 5 minutes | [Installation Guide](Quick_Start/Installation_Guide.md) |
 | 🔧 **Technical Docs** | Developer documentation | [Technical/Documentation/](Technical/Documentation/) |
